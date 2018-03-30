@@ -1,0 +1,4 @@
+<launch>
+    <include file="/home/wataru/whill_ws/src/rospeex/rospeex_launch/launch/rospeex_browser.launch" />
+    <node name="speech_recognition" pkg="speech_recognition" type="speech_recognition.py" output="screen" />
+</launch>
