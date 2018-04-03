@@ -1,0 +1,17 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/opt/ros/kinetic/include",
+        "/home/wataru/whill/src/rospeex/rospeex_audiomonitor/include",
+        "/home/wataru/whill/src/rospeex/rospeex_if/include",
+        "/usr/include"
+      ],
+      "name": "Linux"
+    }
+  ]
+}
