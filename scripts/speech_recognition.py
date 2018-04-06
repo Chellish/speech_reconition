@@ -3,6 +3,7 @@
 
 import rospy
 import re
+from time import sleep
 from std_msgs.msg import Int32
 from rospeex_if import ROSpeexInterface
 
@@ -37,7 +38,8 @@ class recognition(object):
         if right is not None:
            pub.publish(3)   
         if left is not None:
-            pub.publish(4)           
+            pub.publish(4) 
+        sleep(2)        
 
     def run(self):
         """ run ros node """
@@ -46,6 +48,7 @@ class recognition(object):
         self._interface.init()
         #音声認識エンジンの設定(言語,エンジン)
         self._interface.set_spi_config(language='ja', engine='nict')
+        pub.publish(5)  
         #音声認識結果取得用コールバック関数
         self._interface.register_sr_response(self.sr_response)
         rospy.spin()
