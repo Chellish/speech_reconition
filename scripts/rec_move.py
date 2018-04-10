@@ -19,7 +19,11 @@ class send_command(object):
     def __init__(self):
         global ser
         #シリアル通信の設定
-        ser = serial.Serial("/dev/ttyACM0", baudrate=9600, timeout=3.0)
+        ser = serial.Serial("/dev/ttyACM0",
+                            baudrate=38400,
+                            parity=serial.PARITY_NONE,
+                            bytesize=serial.EIGHTBITS,
+                            stopbits=serial.STOPBITS_TWO)
         print ser.portstr
     #Checksumの計算
     #今回はXORを用いる
@@ -46,42 +50,41 @@ class send_command(object):
         setJoy_com[6] = self.checksum(setJoy_com)
 
     def com_sender(self,msg):
-        global flag,ser
+        global flag,ser,setJoy_com
          #flagが0なら電源ONのコマンドを送る
         if flag == 0:
-            flag += 1
             command = setPower_com
         #停止
         if msg.data == 0:
-            #joy_paramater: fb is max 0x64, min  
-            self.setJoy(0x00,0x00)
+            self.setJoy(0x80,0x80)
             command = pack("{0:d}B",*setJoy_com)
         #前進
         if msg.data == 1:
-            self.setJoy( 0x32,0x00)
+            self.setJoy( 0xB2,0x80)
             command = pack("{0:d}B",*setJoy_com)
         #後退
         if msg.data == 2:
-            #パラメーターの負の値ってどうすんだろ？？
-            self.setJoy(-0x32,0x00)
+            self.setJoy(0x4E,0x80)
             command = pack("{0:d}B",*setJoy_com)
         #右
         if msg.data == 3:
-            #パラメーターの負の値ってどうすんだろ？？
-            self.setJoy(-0x32,0x00)
+            self.setJoy(0x80,0x4E)
             command = pack("{0:d}B",*setJoy_com)
         #左
         if msg.data == 4:
-            self.setJoy(0x00,0x32)
+            self.setJoy(0x80,0xB2)
             command = pack("{0:d}B",*setJoy_com)
-        
-        if command[-1] != 0:
-            ser.write(command) 
-            command = []
-
+        ser.write(command)
         print msg.data
-        sleep(2)
- 
+        time=0
+        while time > 11 :
+            ser.write(command)
+            if flag == 0:
+                flag += 1
+                break
+            time += 1
+            sleep(190)
+            
     def run(self):
         rospy.init_node('subscriber')
         rospy.Subscriber('recognition',Int32,self.com_sender)

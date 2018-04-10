@@ -31,13 +31,13 @@ class recognition(object):
         #検索した文字列が何も一致しなかったら配信しない。
         if stop is not None:
             pub.publish(0)
-        if front is not None:
+        elif front is not None:
             pub.publish(1) 
-        if back is not None:
+        elif back is not None:
             pub.publish(2)  
-        if right is not None:
+        elif right is not None:
            pub.publish(3)   
-        if left is not None:
+        elif left is not None:
             pub.publish(4) 
         sleep(2)        
 
