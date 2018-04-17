@@ -10,14 +10,18 @@ from struct import pack
 
 setPower_com = pack('5B',0xAF,0x03,0x02,0x01,0xB5)
 
-flag = 0
+whill_Power = False
 setSpeed_com = []
 setJoy_com = [0xAF,0x05,0x03,0x00,0,0,0]
 ser = serial.Serial()
 
 class send_command(object):
     def __init__(self):
-        global ser
+        global ser,whill_Power
+        #起動時にWhillの電源を入れる
+        if whill_Power == False:
+            ser.write(setPower_com)
+            whill_Power = True
         #シリアル通信の設定
         ser = serial.Serial("/dev/ttyACM0",
                             baudrate=38400,
@@ -25,6 +29,7 @@ class send_command(object):
                             bytesize=serial.EIGHTBITS,
                             stopbits=serial.STOPBITS_TWO)
         print ser.portstr
+
     #Checksumの計算
     #今回はXORを用いる
     def checksum(self,buf):
@@ -50,10 +55,7 @@ class send_command(object):
         setJoy_com[6] = self.checksum(setJoy_com)
 
     def com_sender(self,msg):
-        global flag,ser,setJoy_com
-         #flagが0なら電源ONのコマンドを送る
-        if flag == 0:
-            command = setPower_com
+        global ser,setJoy_com
         #停止
         if msg.data == 0:
             self.setJoy(0x80,0x80)
@@ -79,9 +81,6 @@ class send_command(object):
         time=0
         while time > 11 :
             ser.write(command)
-            if flag == 0:
-                flag += 1
-                break
             time += 1
             sleep(190)
             
