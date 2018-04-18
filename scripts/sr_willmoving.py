@@ -19,10 +19,6 @@ command = []
 class send_command(object):
     def __init__(self):
         global ser,whill_Power
-        #起動時にWhillの電源を入れる
-        if whill_Power == False:
-            ser.write(setPower_com)
-            whill_Power = True
         #シリアル通信の設定
         ser = serial.Serial("/dev/ttyACM0",
                             baudrate=38400,
@@ -30,6 +26,10 @@ class send_command(object):
                             bytesize=serial.EIGHTBITS,
                             stopbits=serial.STOPBITS_TWO)
         print ser.portstr
+        #起動時にWhillの電源を入れる
+        if whill_Power == False:
+            ser.write(setPower_com)
+            whill_Power = True
     
     def timer_callback(self,event):
         global command
