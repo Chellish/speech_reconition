@@ -8,20 +8,21 @@ from time import sleep
 from std_msgs.msg import Int32
 from struct import pack
 
-setPower_com = pack('5B',0xAF,0x03,0x02,0x01,0xB5)
+setPower_com = pack('BBBBB',0xAF,0x03,0x02,0x01,0xB5)
 
 whill_Power = False
 setSpeed_com = []
 setJoy_com = [0xAF,0x05,0x03,0x00,0,0,0]
 ser = serial.Serial()
 command = []
+sJ_com_len = len(setJoy_com)
 
 class send_command(object):
     def __init__(self):
         global ser,whill_Power
         #シリアル通信の設定
-        ser = serial.Serial("/dev/ttyACM0",
-                            baudrate=38400,
+        ser = serial.Serial("/dev/ttyACM2",
+                            baudrate=9600,
                             parity=serial.PARITY_NONE,
                             bytesize=serial.EIGHTBITS,
                             stopbits=serial.STOPBITS_TWO)
@@ -64,23 +65,23 @@ class send_command(object):
         #停止
         if msg.data == 0:
             self.setJoy(0x80,0x80)
-            command = pack("{0:d}B",*setJoy_com)
+            command = pack('B'*sJ_com_len,*setJoy_com)
         #前進
         if msg.data == 1:
             self.setJoy( 0xB2,0x80)
-            command = pack("{0:d}B",*setJoy_com)
+            command = pack('B'*sJ_com_len,*setJoy_com)
         #後退
         if msg.data == 2:
             self.setJoy(0x4E,0x80)
-            command = pack("{0:d}B",*setJoy_com)
+            command = pack('B'*sJ_com_len,*setJoy_com)
         #右
         if msg.data == 3:
             self.setJoy(0x80,0x4E)
-            command = pack("{0:d}B",*setJoy_com)
+            command = pack('B'*sJ_com_len,*setJoy_com)
         #左
         if msg.data == 4:
             self.setJoy(0x80,0xB2)
-            command = pack("{0:d}B",*setJoy_com)
+            command = pack('B'*sJ_com_len,*setJoy_com)
         print msg.data
             
     def run(self):
