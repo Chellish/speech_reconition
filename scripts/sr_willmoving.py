@@ -8,7 +8,7 @@ from time import sleep
 from std_msgs.msg import Int32
 from struct import pack
 
-setPower_com = pack('BBBBB',0xAF,0x03,0x02,0x01,0xB5)
+setPower_com = [0xAF,0x03,0x02,0x01,0xB5]
 
 whill_Power = False
 setSpeed_com = []
@@ -19,7 +19,7 @@ sJ_com_len = len(setJoy_com)
 
 class send_command(object):
     def __init__(self):
-        global ser,whill_Power
+        global ser,whill_Power,command,setJoy_com
         #シリアル通信の設定
         ser = serial.Serial("/dev/ttyACM2",
                             baudrate=9600,
@@ -29,14 +29,25 @@ class send_command(object):
         print ser.portstr
         #起動時にWhillの電源を入れる
         if whill_Power == False:
-            print(command)
-            ser.write(setPower_com)
-            whill_Power = True
+            for i in range(len(setPower_com)):
+                com_data = chr(setPower_com[i])
+                print(ord(com_data))
+                ser.write(com_data)
+        whill_Power = True
+        print('\n')
+        rospy.sleep(2)
+        self.setJoy(0x80,0x80)
+        command = setJoy_com
     
     def timer_callback(self,event):
-        global command
-        print(command)
-        ser.write(command)  
+        global ser,command
+        send_command_ = command
+        print('OK')
+        for i in range(len(send_command_)):
+            com_data = chr(send_command_[i])
+            print(ord(com_data))
+            ser.write(com_data) 
+        print('\n') 
 
     #Checksumの計算
     #今回はXORを用いる
@@ -63,34 +74,31 @@ class send_command(object):
         setJoy_com[6] = self.checksum(setJoy_com)
 
     def com_sender(self,msg):
-        global ser,setJoy_com,command
+        global setJoy_com,command
         #停止
         if msg.data == 0:
             self.setJoy(0x80,0x80)
-            command = pack('B'*sJ_com_len,*setJoy_com)
+            command = setJoy_com
         #前進
         if msg.data == 1:
             self.setJoy( 0xB2,0x80)
-            command = pack('B'*sJ_com_len,*setJoy_com)
         #後退
         if msg.data == 2:
             self.setJoy(0x4E,0x80)
-            command = pack('B'*sJ_com_len,*setJoy_com)
         #右
         if msg.data == 3:
             self.setJoy(0x80,0x4E)
-            command = pack('B'*sJ_com_len,*setJoy_com)
         #左
         if msg.data == 4:
             self.setJoy(0x80,0xB2)
-            command = pack('B'*sJ_com_len,*setJoy_com)
         print msg.data
+        command = setJoy_com
             
     def run(self):
         rospy.init_node('subscriber')
         rospy.Subscriber('recognition',Int32,self.com_sender)
         #ループ処理用コールバック関数
-        rospy.Timer(rospy.Duration(200),self.timer_callback)
+        rospy.Timer(rospy.Duration(0,200000),self.timer_callback)
         rospy.spin()
 
 if __name__ == '__main__':

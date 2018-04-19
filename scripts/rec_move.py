@@ -2,33 +2,33 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-import serial
+#import serial
 import numpy as np
 from time import sleep
 from std_msgs.msg import Int32
 from struct import pack
 
-setPower_com = pack('BBBBB',0xAF,0x03,0x02,0x01,0xB5)
-
 whill_Power = False
 setSpeed_com = []
 setJoy_com = [0xAF,0x05,0x03,0x00,0,0,0]
-ser = serial.Serial()
+#ser = serial.Serial()
 sJ_com_len = len(setJoy_com)
 
 class send_command(object):
     def __init__(self):
-        global ser,whill_Power
+        global whill_Power
         #シリアル通信の設定
-        ser = serial.Serial("/dev/ttyACM1",
-                            baudrate=9600,
-                            parity=serial.PARITY_NONE,
-                            bytesize=serial.EIGHTBITS,
-                            stopbits=serial.STOPBITS_TWO)
-        print ser.portstr
+        #ser = serial.Serial("/dev/ttyACM1",
+        #                    baudrate=9600,
+        #                    parity=serial.PARITY_NONE,
+        #                    bytesize=serial.EIGHTBITS,
+        #                    stopbits=serial.STOPBITS_TWO)
+        #print ser.portstr
         #起動時にWhillの電源を入れる
         if whill_Power == False:
-            ser.write(setPower_com)
+        #    ser.write(setPower_com)
+            setPower_com = pack('BBBBB',0xAF,0x03,0x02,0x01,0xB5)
+            print(setPower_com)
             whill_Power = True       
 
     #Checksumの計算
@@ -56,7 +56,7 @@ class send_command(object):
         setJoy_com[6] = self.checksum(setJoy_com)
 
     def com_sender(self,msg):
-        global ser,setJoy_com
+        global setJoy_com
         #停止
         if msg.data == 0:
             self.setJoy(0x80,0x80)
@@ -77,11 +77,12 @@ class send_command(object):
         if msg.data == 4:
             self.setJoy(0x80,0xB2)
             command = pack('B'*sJ_com_len,*setJoy_com)
-        ser.write(command)
+        #ser.write(command)
         print msg.data
         time=0
         while time > 11 :
-            ser.write(command)
+            #ser.write(command)
+            print(command)
             time += 1
             sleep(190)
             

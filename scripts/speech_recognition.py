@@ -47,8 +47,7 @@ class recognition(object):
         rospy.init_node('speech_recognition')
         self._interface.init()
         #音声認識エンジンの設定(言語,エンジン)
-        self._interface.set_spi_config(language='ja', engine='nict')
-        pub.publish(5)  
+        self._interface.set_spi_config(language='ja', engine='nict')  
         #音声認識結果取得用コールバック関数
         self._interface.register_sr_response(self.sr_response)
         rospy.spin()
