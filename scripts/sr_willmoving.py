@@ -65,6 +65,7 @@ class send_command(object):
         #停止
         if msg.data == 0:
             self.setJoy(0x80,0x80)
+<<<<<<< HEAD
             command = pack('B'*sJ_com_len,*setJoy_com)
         #前進
         if msg.data == 1:
@@ -82,6 +83,25 @@ class send_command(object):
         if msg.data == 4:
             self.setJoy(0x80,0xB2)
             command = pack('B'*sJ_com_len,*setJoy_com)
+=======
+            command = pack("7B",*setJoy_com)
+        #前進
+        if msg.data == 1:
+            self.setJoy( 0xB2,0x80)
+            command = pack("7B",*setJoy_com)
+        #後退
+        if msg.data == 2:
+            self.setJoy(0x4E,0x80)
+            command = pack("7B",*setJoy_com)
+        #右
+        if msg.data == 3:
+            self.setJoy(0x80,0x4E)
+            command = pack("7B",*setJoy_com)
+        #左
+        if msg.data == 4:
+            self.setJoy(0x80,0xB2)
+            command = pack("7B",*setJoy_com)
+>>>>>>> 98667342f873bfc1a4255523ae0b409f48d0226c
         print msg.data
             
     def run(self):
